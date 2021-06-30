@@ -1,14 +1,15 @@
 import os
 import pyNN.spiNNaker as ps
 
+
 class Retina(object):
     def __init__(self, label="Retina", dimension_x=1, dimension_y=1,
                  use_prerecorded_input=True, spike_times=None,
                  min_disparity=0, experiment_name=None,
                  record_spikes=True, verbose=False):
 
-        #assert len(spike_times) >= dimension_x and len(spike_times[0]) >= dimension_y, \
-            #"ERROR: Dimensionality of retina's spiking times is bad. Retina initialization failed."
+        # assert len(spike_times) >= dimension_x and len(spike_times[0]) >= dimension_y, \
+        #"ERROR: Dimensionality of retina's spiking times is bad. Retina initialization failed."
 
         if min_disparity != 0:
             print "WARNING: The minimum disparity is not 0. " \
@@ -23,8 +24,8 @@ class Retina(object):
 
         if verbose:
             print "INFO: Creating Spike Source: {0}".format(label)
-	# for test if the spike time is empty
-	'''
+        # for test if the spike time is empty
+        '''
 	print('aaaand the spikes times shoule be same as above not empty right?')
 	print(spike_times)
 	print('finish print the spike_times'
@@ -34,7 +35,6 @@ class Retina(object):
 		print('in the x of',x,'the spike timeis',spike_times[x])
 	print('finish print the spikes time')
 	'''
-
 
         #self.pixel_columns = []
         #self.labels = []
@@ -56,12 +56,10 @@ class Retina(object):
         if use_prerecorded_input or spike_times is not None:
             num_neu = dimension_x * dimension_y
             retina_pop = ps.Population(num_neu, ps.SpikeSourceArray, {'spike_times': self.spiketimes},
-                                           label=self.label, structure=ps.Line())
+                                       label=self.label, structure=ps.Line())
             self.retina_pop = retina_pop
             if record_spikes:
                 retina_pop.record('spikes')
-
-
 
         else:
             import spynnaker_external_devices_plugin.pyNN as sedp
@@ -76,7 +74,8 @@ class Retina(object):
 
                 # some hacks to pack the injector neurons densely in the populations (since they are limited!)
                 if remaining_pixel_cols > int(MAX_INJNEURONS_IN_POPULATION / dimension_y):
-                    col_height = int(MAX_INJNEURONS_IN_POPULATION / dimension_y) * dimension_y
+                    col_height = int(
+                        MAX_INJNEURONS_IN_POPULATION / dimension_y) * dimension_y
                 else:
                     col_height = remaining_pixel_cols * dimension_y
 
@@ -84,22 +83,21 @@ class Retina(object):
                                               sedp.SpikeInjector,
                                               {'port': init_portnum + x},
                                               label=retina_label)
-                remaining_pixel_cols -= int(MAX_INJNEURONS_IN_POPULATION / dimension_y)
+                remaining_pixel_cols -= int(
+                    MAX_INJNEURONS_IN_POPULATION / dimension_y)
 
                 self.pixel_columns.append(col_of_pixels)
                 self.labels.append(retina_label)
                 if record_spikes:
                     col_of_pixels.record()
-	#here is the same problem that as the network and we can test if i thought is right
+        # here is the same problem that as the network and we can test if i thought is right
+
     def get_spikes(self, sort_by_time=True, save_spikes=True):
 
-
-
-
-    	neo= self.retina_pop.get_data(variables=["spikes"])
+        neo = self.retina_pop.get_data(variables=["spikes"])
         spikes_pop = neo.segments[0].spiketrains
 
-    	#for test the get spike
+        # for test the get spike
         '''
     	for col in spikes_per_population:
     		print('the col of spikes is',col)
@@ -117,17 +115,17 @@ class Retina(object):
                     	spikes.append((round(spike, 1), x_coord+1, y_coord+1))	# pixel coordinates are 1-indexed
         '''
         spikes = list()
-        for index,spiketrains in enumerate(spikes_pop):
+        for index, spiketrains in enumerate(spikes_pop):
             x_coord = index/self.dim_y
-            y_coord = index%self.dim_y
+            y_coord = index % self.dim_y
 
             for spike in spiketrains:
                 spikes.append((round(spike, 1), x_coord+1, y_coord+1))
 
-    	#print('spikes before the sort by time of retina',spikes)
+        #print('spikes before the sort by time of retina',spikes)
         if sort_by_time:
             spikes.sort(key=lambda x: x[0])
-	    #print('spikes of retina after sort by time',spikes)
+            #print('spikes of retina after sort by time',spikes)
         if save_spikes:
             if not os.path.exists("./spikes"):
                 os.makedirs("./spikes")
@@ -136,12 +134,13 @@ class Retina(object):
                 i += 1
             with open('./spikes/{0}_{1}_spikes_{2}.dat'.format(self.experiment_name, i, self.label), 'w') as fs:
                 fs.write("### DATA FORMAT ###\n"
-                        "# Description: These are the spikes a retina has produced (see file name for exact retina label).\n"
-                        "# Each row contains: "
-                        "Time stamp -- x-coordinate -- y-coordinate\n"
-                        "### DATA START ###\n")
+                         "# Description: These are the spikes a retina has produced (see file name for exact retina label).\n"
+                         "# Each row contains: "
+                         "Time stamp -- x-coordinate -- y-coordinate\n"
+                         "### DATA START ###\n")
                 for s in spikes:
-                    fs.write(str(s[0]) + " " + str(s[1]) + " " + str(s[2]) + "\n")
+                    fs.write(str(s[0]) + " " + str(s[1]) +
+                             " " + str(s[2]) + "\n")
                 fs.write("### DATA END ###")
                 fs.close()
         return spikes

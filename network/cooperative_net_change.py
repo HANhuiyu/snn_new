@@ -29,7 +29,7 @@ class CooperativeNetwork(object):
         # check this assertion before the actual network generation, since the former
         # might take very long to complete.
         assert retinae['left'].dim_x == retinae['right'].dim_x and \
-               retinae['left'].dim_y == retinae['right'].dim_y, \
+            retinae['left'].dim_y == retinae['right'].dim_y, \
             "ERROR: Left and Right retina dimensions are not matching. Connecting Spike Sources to Network Failed."
 
         # TODO: make parameter values dependent on the simulation time step
@@ -50,7 +50,7 @@ class CooperativeNetwork(object):
                                 'tau_I': 2.0,
                                 'tau_mem': 2.07,
                                 'v_reset_blocker': -84.0,
-                                'v_reset_collector': -90.0} # why -90.0?
+                                'v_reset_collector': -90.0}  # why -90.0?
             w = 18.0
             params['synaptic'] = {'wBC': w,  # -20.5: negative won't work. However keep in mind that it is inhibitory!
                                   'dBC': simulation_time_step,
@@ -74,15 +74,15 @@ class CooperativeNetwork(object):
                                 'tau_mem': 1.07,
                                 'v_reset_blocker': -92.0,
                                 'v_reset_collector': -102.0}
-            params['synaptic'] = {'wBC': 39.5, #weight should be positive numbers, indicated as inhibitory synapses (if necessary)!
+            params['synaptic'] = {'wBC': 39.5,  # weight should be positive numbers, indicated as inhibitory synapses (if necessary)!
                                   'dBC': simulation_time_step,
                                   'wSC': 39.5,
                                   'dSC': 0.8,
                                   'wSaB': 49.5,
                                   'dSaB': simulation_time_step,
-                                  'wSzB': 39.5, # same here
+                                  'wSzB': 39.5,  # same here
                                   'dSzB': simulation_time_step,
-                                  'wCCi': 50.0, # and here
+                                  'wCCi': 50.0,  # and here
                                   'dCCi': simulation_time_step,
                                   'wCCe': 4.0,
                                   'dCCe': simulation_time_step}
@@ -101,45 +101,44 @@ class CooperativeNetwork(object):
 
     def _create_network(self, record_spikes=False, record_v=False, verbose=False):
 
-        print("INFO: Creating Cooperative Network of size {0} (in microensembles).".format(self.size))
+        print("INFO: Creating Cooperative Network of size {0} (in microensembles).".format(
+            self.size))
 
 #        if record_spikes:
 #            from pyNN.spiNNaker import record
 
         network = []
         neural_params = self.cell_params['neural']
-        for y in range(0,self.dim_y):
+        for y in range(0, self.dim_y):
             blockerLeft = ps.Population(self.size,
-                                            ps.IF_curr_exp,
-                                            {'tau_syn_E': neural_params['tau_E'],
-                                             'tau_syn_I': neural_params['tau_I'],
-                                             'tau_m': neural_params['tau_mem'],
-                                             'v_reset': neural_params['v_reset_blocker']},
-                                            label="Blocker_left{0}".format(y))
+                                        ps.IF_curr_exp,
+                                        {'tau_syn_E': neural_params['tau_E'],
+                                         'tau_syn_I': neural_params['tau_I'],
+                                         'tau_m': neural_params['tau_mem'],
+                                         'v_reset': neural_params['v_reset_blocker']},
+                                        label="Blocker_left{0}".format(y))
 
             blockeRight = ps.Population(self.size,
-                                            ps.IF_curr_exp,
-                                            {'tau_syn_E': neural_params['tau_E'],
-                                             'tau_syn_I': neural_params['tau_I'],
-                                             'tau_m': neural_params['tau_mem'],
-                                             'v_reset': neural_params['v_reset_blocker']},
-                                            label="Blocker_right{0}".format(y))
+                                        ps.IF_curr_exp,
+                                        {'tau_syn_E': neural_params['tau_E'],
+                                         'tau_syn_I': neural_params['tau_I'],
+                                         'tau_m': neural_params['tau_mem'],
+                                         'v_reset': neural_params['v_reset_blocker']},
+                                        label="Blocker_right{0}".format(y))
             collector = ps.Population(self.size,
-                                             ps.IF_curr_exp,
-                                             {'tau_syn_E': neural_params['tau_E'],
-                                              'tau_syn_I': neural_params['tau_I'],
-                                              'tau_m': neural_params['tau_mem'],
-                                              'v_reset': neural_params['v_reset_collector']},
-                                             label="Collector {0}".format(y))
+                                      ps.IF_curr_exp,
+                                      {'tau_syn_E': neural_params['tau_E'],
+                                       'tau_syn_I': neural_params['tau_I'],
+                                       'tau_m': neural_params['tau_mem'],
+                                       'v_reset': neural_params['v_reset_collector']},
+                                      label="Collector {0}".format(y))
             if record_spikes:
                 collector.record('spikes')  # records only the spikes
             if record_v:
                 collector.record_v()  # records the membrane potential -- very resource demanding!
                 blocker.record_v()
 
-            network.append((blockerLeft,blockeRight,collector))
-
-
+            network.append((blockerLeft, blockeRight, collector))
 
         self._interconnect_neurons(network, verbose=verbose)
 
@@ -153,10 +152,6 @@ class CooperativeNetwork(object):
 
         return network
 
-
-
-
-
     def _interconnect_neurons(self, network, verbose=False):
 
         assert network is not None, \
@@ -168,24 +163,19 @@ class CooperativeNetwork(object):
         # and dimensionRetinaY till dimensionRetinaY*2 - 1 for the right
         # the connection bloker with collector, here change the
 
-
         # connect the inhibitory neurons to the cell output neurons
         if verbose:
             print "INFO: Interconnecting Neurons. This may take a while."
 
-
         for ensemble in network:
-            ps.Projection(ensemble[0], ensemble[2],ps.OneToOneConnector(),
-                                    ps.StaticSynapse(weight=synaptic_params['wBC'],
-                                    delay=synaptic_params['dBC']),
-                                    receptor_type='inhibitory')
-            ps.Projection(ensemble[1], ensemble[2],ps.OneToOneConnector(),
-                                    ps.StaticSynapse(weight=synaptic_params['wBC'],
-                                    delay=synaptic_params['dBC']),
-                                    receptor_type='inhibitory')
-
-
-
+            ps.Projection(ensemble[0], ensemble[2], ps.OneToOneConnector(),
+                          ps.StaticSynapse(weight=synaptic_params['wBC'],
+                                           delay=synaptic_params['dBC']),
+                          receptor_type='inhibitory')
+            ps.Projection(ensemble[1], ensemble[2], ps.OneToOneConnector(),
+                          ps.StaticSynapse(weight=synaptic_params['wBC'],
+                                           delay=synaptic_params['dBC']),
+                          receptor_type='inhibitory')
 
     def _interconnect_neurons_inhexc(self, network, verbose=False):
 
@@ -211,11 +201,12 @@ class CooperativeNetwork(object):
 
         while ensembleIndex < self.size:
             if ensembleIndex / (self.max_disparity - self.min_disparity + 1) > \
-                                    (self.dim_x - self.min_disparity) - (self.max_disparity - self.min_disparity) - 1:
+                    (self.dim_x - self.min_disparity) - (self.max_disparity - self.min_disparity) - 1:
                 limiter -= 1
                 if limiter == 0:
                     break
-            nbhoodInhL.append([ensembleIndex + disp for disp in range(0, limiter)])
+            nbhoodInhL.append(
+                [ensembleIndex + disp for disp in range(0, limiter)])
             ensembleIndex += limiter
 
         ensembleIndex = self.size
@@ -241,11 +232,10 @@ class CooperativeNetwork(object):
                 if elem is not None:
                     sublist.append(elem)
             nbhoodExcX.append(sublist)
-	#print("the L is ", nbhoodInhL)
+        #print("the L is ", nbhoodInhL)
     #print("the R is ", nbhoodInhR)
-	#print("the diag list is", nbhoodExcX)
+        #print("the diag list is", nbhoodExcX)
         # generate all y-axis excitation
-
 
         # Store these lists as global parameters as they can be used to quickly match the spiking collector neuron
         # with the corresponding pixel xy coordinates (same_disparity_indices)
@@ -262,72 +252,67 @@ class CooperativeNetwork(object):
             print "INFO: Connecting neurons for internal excitation and inhibition."
         connectInhL = []
 
-        for row in _retina_proj_l :
-            for pop in row :
+        for row in _retina_proj_l:
+            for pop in row:
                 for nb in row:
-                    if nb != pop :
-                        connectInhL.append((pop,nb,self.cell_params['synaptic']['wCCi'],self.cell_params['synaptic']['dCCi']))
+                    if nb != pop:
+                        connectInhL.append(
+                            (pop, nb, self.cell_params['synaptic']['wCCi'], self.cell_params['synaptic']['dCCi']))
 
-
-
-        for i in range(0,len(network)):
-            ps.Projection(network[i][2],network[i][2], ps.FromListConnector(connectInhL),receptor_type ='inhibitory')
-
-
-
+        for i in range(0, len(network)):
+            ps.Projection(network[i][2], network[i][2], ps.FromListConnector(
+                connectInhL), receptor_type='inhibitory')
 
         connectInhR = []
-
 
         for col in _retina_proj_r:
             for pop in col:
                 for nb in col:
-                    if nb != pop :
-                        connectInhR.append((pop,nb,self.cell_params['synaptic']['wCCi'],self.cell_params['synaptic']['dCCi']))
+                    if nb != pop:
+                        connectInhR.append(
+                            (pop, nb, self.cell_params['synaptic']['wCCi'], self.cell_params['synaptic']['dCCi']))
 
-        for i in range(0,len(network)):
-            ps.Projection(network[i][2],network[i][2], ps.FromListConnector(connectInhR),receptor_type ='inhibitory')
-
-
+        for i in range(0, len(network)):
+            ps.Projection(network[i][2], network[i][2], ps.FromListConnector(
+                connectInhR), receptor_type='inhibitory')
 
         connectExcX = []
 
-        for diag in same_disparity_indices :
-            for i in range(0,len(diag)):
-                for j in range(1,self.cell_params['topological']['radius_e'] + 1):
-
+        for diag in same_disparity_indices:
+            for i in range(0, len(diag)):
+                for j in range(1, self.cell_params['topological']['radius_e'] + 1):
 
                     if i+j < len(diag):
-                        connectExcX.append((diag[i],diag[i+j],self.cell_params['synaptic']['wCCe'],self.cell_params['synaptic']['dCCe']))
+                        connectExcX.append(
+                            (diag[i], diag[i+j], self.cell_params['synaptic']['wCCe'], self.cell_params['synaptic']['dCCe']))
                     if i-j >= 0:
-                        connectExcX.append((diag[i],diag[i-j],self.cell_params['synaptic']['wCCe'],self.cell_params['synaptic']['dCCe']))
+                        connectExcX.append(
+                            (diag[i], diag[i-j], self.cell_params['synaptic']['wCCe'], self.cell_params['synaptic']['dCCe']))
 
-        for i in range(0,len(network)) :
-            ps.Projection(network[i][2],network[i][2], ps.FromListConnector(connectExcX),receptor_type ='excitatory')
+        for i in range(0, len(network)):
+            ps.Projection(network[i][2], network[i][2], ps.FromListConnector(
+                connectExcX), receptor_type='excitatory')
 
+        print("connectExcX is ", connectExcX)
+        connectExcY = []
 
-
-        print("connectExcX is ",connectExcX)
-        connectExcY=[]
-
-        for i in range(0,len(network)):
+        for i in range(0, len(network)):
             for j in range(1, self.cell_params['topological']['radius_e'] + 1):
 
                 if i+j < len(network):
-                    connectExcY.append([i,i+j])
+                    connectExcY.append([i, i+j])
                 if i-j >= 0:
-                    connectExcY.append([i,i-j])
-
+                    connectExcY.append([i, i-j])
 
         for l in connectExcY:
             i = l[0]
             j = l[1]
 
-            ps.Projection(network[i][2],network[j][2],ps.OneToOneConnector(),ps.StaticSynapse(weight=self.cell_params['synaptic']['wCCe'],
-                                             delay=self.cell_params['synaptic']['dCCe']),
-                                             receptor_type='excitatory')
-            
-        print("the connection excitation y  is",connectExcY)
+            ps.Projection(network[i][2], network[j][2], ps.OneToOneConnector(), ps.StaticSynapse(weight=self.cell_params['synaptic']['wCCe'],
+                                                                                                 delay=self.cell_params['synaptic']['dCCe']),
+                          receptor_type='excitatory')
+
+        print("the connection excitation y  is", connectExcY)
 
     def _connect_spike_sources(self, retinae=None, verbose=False):
 
@@ -341,28 +326,29 @@ class CooperativeNetwork(object):
         connListRetLBlockerR = []
         connListRetRBlockerL = []
         connListRetRBlockerR = []
-        connListRetLCollector =[]
+        connListRetLCollector = []
         connListRetRCollector = []
 
-        pixel = np.arange(self.dim_x*self.dim_y).reshape(self.dim_x,self.dim_y)
+        pixel = np.arange(
+            self.dim_x*self.dim_y).reshape(self.dim_x, self.dim_y)
         raw_pixel = []
         for y in range(self.dim_y):
-            list_raw = pixel[:,y].tolist()
+            list_raw = pixel[:, y].tolist()
             raw_pixel.append(list_raw)
 
         for raw in raw_pixel:
-            LL =[]
+            LL = []
             LR = []
             LC = []
-            for index,pixel in enumerate(raw):
+            for index, pixel in enumerate(raw):
                 for bc in _retina_proj_l[index]:
-                    LL.append((pixel,bc,
+                    LL.append((pixel, bc,
                                self.cell_params['synaptic']['wSaB'],
                                self.cell_params['synaptic']['dSaB']))
                     LR.append((pixel, bc,
                                self.cell_params['synaptic']['wSzB'],
                                self.cell_params['synaptic']['dSzB']))
-                    LC.append((pixel,bc,
+                    LC.append((pixel, bc,
                                self.cell_params['synaptic']['wSC'],
                                self.cell_params['synaptic']['dSC']))
 
@@ -370,21 +356,19 @@ class CooperativeNetwork(object):
             connListRetLBlockerR.append(LR)
             connListRetLCollector.append(LC)
 
-
-
         for raw in raw_pixel:
             RR = []
             RL = []
             RC = []
-            for index,pixel in enumerate(raw):
+            for index, pixel in enumerate(raw):
                 for bc in _retina_proj_r[index]:
-                    RR.append((pixel,bc,
-                                self.cell_params['synaptic']['wSaB'],
-                                self.cell_params['synaptic']['dSaB']))
+                    RR.append((pixel, bc,
+                               self.cell_params['synaptic']['wSaB'],
+                               self.cell_params['synaptic']['dSaB']))
                     RL.append((pixel, bc,
-                                self.cell_params['synaptic']['wSzB'],
-                                self.cell_params['synaptic']['dSzB']))
-                    RC.append((pixel,bc,
+                               self.cell_params['synaptic']['wSzB'],
+                               self.cell_params['synaptic']['dSzB']))
+                    RC.append((pixel, bc,
                                self.cell_params['synaptic']['wSC'],
                                self.cell_params['synaptic']['dSC']))
 
@@ -426,20 +410,13 @@ class CooperativeNetwork(object):
                           ps.FromListConnector(connListRetRCollector[i]),
                           receptor_type='excitatory')
 
-
-
-
-
-
-
-
-        print("the coonection list of RetinaL with collector",connListRetLCollector)
-        print("the connection list of retinaR with collector",connListRetRCollector)
-        print("the retina_proj_l",_retina_proj_l)
-        print("the retina_proj_r",_retina_proj_r)
+        print("the coonection list of RetinaL with collector",
+              connListRetLCollector)
+        print("the connection list of retinaR with collector",
+              connListRetRCollector)
+        print("the retina_proj_l", _retina_proj_l)
+        print("the retina_proj_r", _retina_proj_r)
         print("the raw pixel is", raw_pixel)
-
-
 
         # configure for the live input streaming if desired
         if not(retinae['left'].use_prerecorded_input and retinae['right'].use_prerecorded_input):
@@ -454,7 +431,8 @@ class CooperativeNetwork(object):
             # is put there, the main thread will stuck there and will not complete the simulation.
             # One solution might be to start a thread/process which runs a "while is_running:" loop unless the main thread
             # sets the "is_running" to False.
-            self.live_connection_sender.add_start_callback(all_retina_labels[0], self.start_injecting)
+            self.live_connection_sender.add_start_callback(
+                all_retina_labels[0], self.start_injecting)
 
             import DVSReader as dvs
             # the port numbers might well be wrong
@@ -476,11 +454,11 @@ class CooperativeNetwork(object):
         self.dvs_stream_right.start_injecting = True
 
     def get_network_dimensions(self):
-        parameters = {'size':self.size,
-                      'dim_x':self.dim_x,
-                      'dim_y':self.dim_y,
-                      'min_d':self.min_disparity,
-                      'max_d':self.max_disparity}
+        parameters = {'size': self.size,
+                      'dim_x': self.dim_x,
+                      'dim_y': self.dim_y,
+                      'min_d': self.min_disparity,
+                      'max_d': self.max_disparity}
         return parameters
 
     """ this method returns (and saves) a full list of spike times
@@ -489,11 +467,14 @@ class CooperativeNetwork(object):
     def descri(self):
         for i in self.network:
             i[2].describe(template='population_default.txt', engine='default')
+
     def get_spikes(self, sort_by_time=True, save_spikes=True):
         global same_disparity_indices, _retina_proj_l
 
-        neo_per_population = [x[2].get_data(variables =["spikes"]) for x in self.network]
-        spikes_per_population = [x.segments[0].spiketrains for x in neo_per_population]
+        neo_per_population = [x[2].get_data(
+            variables=["spikes"]) for x in self.network]
+        spikes_per_population = [
+            x.segments[0].spiketrains for x in neo_per_population]
 
         spikes = list()
 
@@ -506,12 +487,11 @@ class CooperativeNetwork(object):
                         break
                 for d in range(len(same_disparity_indices)):
                     if index_neuron in same_disparity_indices[d]:
-                        disp =d
+                        disp = d
                         break
                 for spike in spiketrains:
-                    spikes.append((round(spike, 1), x_coord+1, y_coord+1, disp))
-
-
+                    spikes.append(
+                        (round(spike, 1), x_coord+1, y_coord+1, disp))
 
         if sort_by_time:
             spikes.sort(key=lambda x: x[0])
@@ -522,41 +502,44 @@ class CooperativeNetwork(object):
             while os.path.exists("./spikes/{0}_{1}_spikes.dat".format(self.experiment_name, i)):
                 i += 1
             with open('./spikes/{0}_{1}_spikes.dat'.format(self.experiment_name, i), 'w') as fs:
-		# for open the last spike file
-		self.i=i
-		print('the value of i is',i)
+                # for open the last spike file
+                self.i = i
+                print('the value of i is', i)
                 self._write_preamble(fs)
                 fs.write("### DATA FORMAT ###\n"
-                        "# Description: All spikes from the Collector Neurons are recorded. The disparity is inferred "
-                        "from the Neuron ID. The disparity is calculated with the left camera as reference."
-                        "The timestamp is dependent on the simulation parameters (simulation timestep).\n"
-                        "# Each row contains: "
-                        "Time -- x-coordinate -- y-coordinate -- disparity\n"
-                        "### DATA START ###\n")
+                         "# Description: All spikes from the Collector Neurons are recorded. The disparity is inferred "
+                         "from the Neuron ID. The disparity is calculated with the left camera as reference."
+                         "The timestamp is dependent on the simulation parameters (simulation timestep).\n"
+                         "# Each row contains: "
+                         "Time -- x-coordinate -- y-coordinate -- disparity\n"
+                         "### DATA START ###\n")
                 for s in spikes:
-                    fs.write(str(s[0]) + " " + str(s[1]) + " " + str(s[2]) + " " + str(s[3]) + "\n")
+                    fs.write(str(s[0]) + " " + str(s[1]) + " " +
+                             str(s[2]) + " " + str(s[3]) + "\n")
                 fs.write("### DATA END ###")
                 fs.close()
         return spikes
+
     def _write_preamble(self, opened_file_descriptor):
         if opened_file_descriptor is not None:
             f = opened_file_descriptor
             f.write("### PREAMBLE START ###\n")
-            f.write("# Experiment name: \n\t{0}\n".format(self.experiment_name))
+            f.write("# Experiment name: \n\t{0}\n".format(
+                self.experiment_name))
             f.write("# Network parameters "
                     "(size in ensembles, x-dimension, y-dimension, minimum disparity, maximum disparity, "
                     "radius of excitation, radius of inhibition): "
                     "\n\t{0} {1} {2} {3} {4} {5} {6}\n".format(self.size, self.dim_x, self.dim_y,
-                                                         self.min_disparity, self.max_disparity,
-                                                         self.cell_params['topological']['radius_e'],
-                                                         self.cell_params['topological']['radius_i']))
+                                                               self.min_disparity, self.max_disparity,
+                                                               self.cell_params['topological']['radius_e'],
+                                                               self.cell_params['topological']['radius_i']))
             f.write("# Neural parameters "
                     "(tau_excitation, tau_inhibition, tau_membrane, v_reset_blocker, v_reset_collector): "
                     "\n\t{0} {1} {2} {3} {4}\n".format(self.cell_params['neural']['tau_E'],
-                                                 self.cell_params['neural']['tau_I'],
-                                                 self.cell_params['neural']['tau_mem'],
-                                                 self.cell_params['neural']['v_reset_blocker'],
-                                                 self.cell_params['neural']['v_reset_collector']))
+                                                       self.cell_params['neural']['tau_I'],
+                                                       self.cell_params['neural']['tau_mem'],
+                                                       self.cell_params['neural']['v_reset_blocker'],
+                                                       self.cell_params['neural']['v_reset_collector']))
             f.write('# Synaptic parameters '
                     '(wBC, dBC, wSC, dSC, wSaB, dSaB, wSzB, dSzB, wCCi, dCCi, wCCe, dCCe): '
                     '\n\t{0} {1} {2} {3} {4} {5} {6} {7} {8} {9} {10} {11}\n'
@@ -577,9 +560,10 @@ class CooperativeNetwork(object):
                     'synaptic parameters, see the code documentation.\n')
             f.write("### PREAMBLE END ###\n")
 
-
     """ this method returns the accumulated spikes for each disparity as a list. It is not very useful except when
     the disparity sorting and formatting in the more general one get_spikes is not needed."""
+
+
 '''
     def get_spikes_right(self, sort_by_time=True, save_spikes=True):
         global same_disparity_indices, _retina_proj_r

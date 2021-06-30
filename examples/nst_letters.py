@@ -12,6 +12,8 @@ from network.ext_input_change import *
 from network.retina_change import *
 from visualizer.visualizer import *
 import os
+
+
 def run_experiment_nst(noisy=False, with_visualization=True):
     """
     TODO: add experiment description.
@@ -22,18 +24,19 @@ def run_experiment_nst(noisy=False, with_visualization=True):
     else:
         experiment_name = "NST"
     experiment_duration = 10000  # in ms
-    dx = 10 # in pixels
+    dx = 10  # in pixels
     dy = 6  # in pixels
     max_d = 9  # in pixels
     crop_xmin = 70  # in pixels
     crop_ymin = 65  # in pixels
 
-    n_pops = 3* (2 * (dx) * (max_d + 1)
-                     - (max_d + 1) ** 2
-                     + max_d + 1) / 2
+    n_pops = 3 * (2 * (dx) * (max_d + 1)
+                  - (max_d + 1) ** 2
+                  + max_d + 1) / 2
 
     # Setup the simulation
-    Simulation = SNNSimulation(simulation_time=experiment_duration)#,n_chips_required=n_pops/16)
+    # ,n_chips_required=n_pops/16)
+    Simulation = SNNSimulation(simulation_time=experiment_duration)
 
     # Define the input source
     if noisy:
@@ -82,14 +85,14 @@ def run_experiment_nst(noisy=False, with_visualization=True):
     # Finish the simulation
     Simulation.end()
 
-    i=SNN_Network.i
+    i = SNN_Network.i
     if with_visualization:
         from visualizer import Visualizer
         network_dimensions = SNN_Network.get_network_dimensions()
         viz = Visualizer(network_dimensions=network_dimensions,
-                             experiment_name=experiment_name,
-                             sim_time = experiment_duration,
-                             spikes_file="./spikes/NST_{0}_spikes.dat".format(i))
+                         experiment_name=experiment_name,
+                         sim_time=experiment_duration,
+                         spikes_file="./spikes/NST_{0}_spikes.dat".format(i))
         # viz.microensemble_voltage_plot(save_figure=True)
         viz.disparity_histogram(over_time=False, save_figure=True)
         # viz.scatter_animation(dimension=3, save_animation=True, rotate=True)
