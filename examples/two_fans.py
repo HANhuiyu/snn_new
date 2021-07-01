@@ -11,7 +11,7 @@ from network.cooperative_net_change import *
 from network.simulation import *
 from network.ext_input_change import *
 from network.retina_change import *
-from visualizer.visualizer import *
+#from visualizer.visualizer import *
 import os
 
 
@@ -83,7 +83,7 @@ def run_experiment_fans(with_visualization=True):
     # Finish the simulation
     Simulation.end()
     print("boisoir,jai finis le simulation!")
-
+    '''
     i = SNN_Network.i
     if with_visualization:
         from visualizer import Visualizer
@@ -96,3 +96,4 @@ def run_experiment_fans(with_visualization=True):
         # viz.microensemble_voltage_plot(save_figure=True)
         viz.disparity_histogram(over_time=False, save_figure=True)
         #viz.scatter_animation(dimension=2, save_animation=True, rotate=False)
+    '''
