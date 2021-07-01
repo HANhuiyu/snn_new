@@ -10,7 +10,7 @@ from network.cooperative_net_change import *
 from network.simulation import *
 from network.ext_input_change import *
 from network.retina_change import *
-from visualizer.visualization import *
+#from visualizer.visualization import *
 import os
 
 
