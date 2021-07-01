@@ -12,8 +12,8 @@ class Retina(object):
         #"ERROR: Dimensionality of retina's spiking times is bad. Retina initialization failed."
 
         if min_disparity != 0:
-            print "WARNING: The minimum disparity is not 0. " \
-                  "This may lead to nonsensical results or failure as the network is not tested thoroughly."
+            print ("WARNING: The minimum disparity is not 0. " \
+                  "This may lead to nonsensical results or failure as the network is not tested thoroughly.")
 
         self.label = label
         self.experiment_name = experiment_name
@@ -23,7 +23,7 @@ class Retina(object):
         self.spiketimes = spike_times
 
         if verbose:
-            print "INFO: Creating Spike Source: {0}".format(label)
+            print ("INFO: Creating Spike Source: {0}".format(label))
         # for test if the spike time is empty
         '''
 	print('aaaand the spikes times shoule be same as above not empty right?')
