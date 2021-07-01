@@ -10,7 +10,7 @@ from network.cooperative_net_change import *
 from network.simulation import *
 from network.ext_input_change import *
 from network.retina_change import *
-from visualizer.visualizer import *
+from visualizer.visualization import *
 import os
 
 
@@ -86,6 +86,7 @@ def run_experiment_nst(noisy=False, with_visualization=True):
     Simulation.end()
 
     i = SNN_Network.i
+
     if with_visualization:
         from visualizer import Visualizer
         network_dimensions = SNN_Network.get_network_dimensions()
