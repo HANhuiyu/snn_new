@@ -20,9 +20,10 @@ class CooperativeNetwork(object):
         assert dx > max_disparity >= 0, "ERROR: Maximum Disparity Constant is illegal!"
         self.max_disparity = max_disparity
         self.min_disparity = 0
-        self.size = (2 * (dx - self.min_disparity) * (self.max_disparity - self.min_disparity + 1)
-                     - (self.max_disparity - self.min_disparity + 1) ** 2
-                     + self.max_disparity - self.min_disparity + 1) / 2
+        size = (2 * (dx - self.min_disparity) * (self.max_disparity - self.min_disparity + 1)
+                - (self.max_disparity - self.min_disparity + 1) ** 2
+                + self.max_disparity - self.min_disparity + 1) / 2
+        self.size = int(size)
         self.dim_x = dx
         self.dim_y = retinae['left'].dim_y
 
