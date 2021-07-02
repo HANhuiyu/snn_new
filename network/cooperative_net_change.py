@@ -305,7 +305,7 @@ class CooperativeNetwork(object):
             ps.Projection(network[i][2], network[i][2], ps.FromListConnector(
                 connectExcX), receptor_type='excitatory')
 
-        print("connectExcX is ", connectExcX)
+
         connectExcY = []
 
         for i in range(0, len(network)):
@@ -324,7 +324,7 @@ class CooperativeNetwork(object):
                                                                                                  delay=self.cell_params['synaptic']['dCCe']),
                           receptor_type='excitatory')
 
-        print("the connection excitation y  is", connectExcY)
+
 
     def _connect_spike_sources(self, retinae=None, verbose=False):
 
@@ -422,13 +422,7 @@ class CooperativeNetwork(object):
                           ps.FromListConnector(connListRetRCollector[i]),
                           receptor_type='excitatory')
 
-        print("the coonection list of RetinaL with collector",
-              connListRetLCollector)
-        print("the connection list of retinaR with collector",
-              connListRetRCollector)
-        print("the retina_proj_l", _retina_proj_l)
-        print("the retina_proj_r", _retina_proj_r)
-        print("the raw pixel is", raw_pixel)
+
 
         # configure for the live input streaming if desired
         if not(retinae['left'].use_prerecorded_input and retinae['right'].use_prerecorded_input):
